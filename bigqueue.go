@@ -25,10 +25,8 @@ import (
 	"github.com/jaeyo/gobigqueue/utils"
 )
 
-const (
-	INDEX_FILE_LENGTH = 5
-	DATA_FILE_SIZE    = 128 * 1024 * 1024
-)
+const INDEX_FILE_LENGTH = 5
+const DATA_FILE_SIZE = 128 * 1024 * 1024
 
 type BigQueue struct {
 	index *IndexMmap
@@ -53,7 +51,7 @@ func (q *BigQueue) Close() error {
 
 func (q *BigQueue) Enqueue(data []byte) error {
 	if len(data) >= DATA_FILE_SIZE {
-		return fmt.Errorf("data size is too big")
+		return fmt.Errorf("gobigqueue: data size is too big, data size must be less than %d bytes", DATA_FILE_SIZE)
 	}
 
 	index := q.index.GetHeadDataFileIndex()
