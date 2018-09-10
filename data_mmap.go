@@ -1,10 +1,11 @@
-package mmap
+package gobigqueue
 
 import (
-	"os"
 	"fmt"
-	"gobigqueue/utils"
+	"os"
+
 	"github.com/go-errors/errors"
+	"github.com/jaeyo/gobigqueue/utils"
 )
 
 /*
@@ -19,12 +20,12 @@ type DataMmap struct {
 
 func (dataMmap *DataMmap) Enqueue(data []byte, pos int) {
 	dataMmap.mmap.Set(utils.UintToBytes(len(data)), pos)
-	dataMmap.mmap.Set(data, pos + 4)
+	dataMmap.mmap.Set(data, pos+4)
 }
 
 func (dataMmap *DataMmap) Dequeue(pos int) []byte {
 	length := utils.BytesToUint(dataMmap.mmap.Get(pos, 4))
-	return dataMmap.mmap.Get(pos + 4, length)
+	return dataMmap.mmap.Get(pos+4, length)
 }
 
 func (dataMmap *DataMmap) SetEndOfFileOffset(offset int) {
@@ -39,20 +40,25 @@ func (dataMmap *DataMmap) Close() error {
 	return dataMmap.mmap.Close()
 }
 
-
 func NewDataMmap(filename string) (*DataMmap, error) {
 	exists, err := utils.Exists("./data")
-	if err != nil { return nil, err }
-	if exists == false {
-		err := os.Mkdir("./data", 0777)	
-		if err != nil { return nil, errors.Errorf(err.Error()) } 
+	if err != nil {
+		return nil, err
 	}
-	
-	mmap, _, err := NewMmap(fmt.Sprintf("./data/%s", filename), DATA_FILE_SIZE) 
-	if err != nil { return nil, err }
-	
-	dataMmap := DataMmap{ mmap }
+	if exists == false {
+		err := os.Mkdir("./data", 0777)
+		if err != nil {
+			return nil, errors.Errorf(err.Error())
+		}
+	}
+
+	mmap, _, err := NewMmap(fmt.Sprintf("./data/%s", filename), DATA_FILE_SIZE)
+	if err != nil {
+		return nil, err
+	}
+
+	dataMmap := DataMmap{mmap}
 	dataMmap.SetEndOfFileOffset(0)
-	
+
 	return &dataMmap, nil
 }
