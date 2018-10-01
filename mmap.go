@@ -82,13 +82,13 @@ func NewMmap(filename string, length int) (*MmapWrapper, bool, error) {
 				return nil, false, err
 			}
 			return mapFile, true, nil
-		} else {
-			mapFile, err := os.Open(filename)
-			if err != nil {
-				return nil, true, errors.Errorf(err.Error())
-			}
-			return mapFile, false, nil
 		}
+
+		mapFile, err := os.Open(filename)
+		if err != nil {
+			return nil, true, errors.Errorf(err.Error())
+		}
+		return mapFile, false, nil
 	}()
 	if err != nil {
 		return nil, isNew, err
